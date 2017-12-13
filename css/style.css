@@ -24,14 +24,21 @@ body{
     left: 0px;
 }
 .playerDiv #player {
-    height: inherit;
+    height: 80%;
     position: absolute;
-    right: 10%;
+    right: 15%;
     z-index: 2;
     bottom: 0vh;
 }
 .playerDiv #mountains {
-    height: inherit;
+    height: 160%;
+    bottom: 0;
     position: absolute;
     left: 0px;
+}
+.playerDiv #bump {
+    height: 50%;
+    left: 0px;
+    bottom: 0;
+    position: absolute;
 }
