@@ -2,18 +2,21 @@ var screenWidth = document.getElementById("platform1").offsetWidth;
 var platform1 = document.getElementById("platform1");
 var platform2 = document.getElementById("platform2");
 var mountains = document.getElementById("mountains");
-var bump = document.getElementById("bump");
+var bullet = document.getElementById("bullet");
 var player = document.getElementById("player");
+var VhToPx = document.getElementById("body").offsetHeight / 100;
 console.log();
 (function () {
     platform1.style.left = - screenWidth + "px";
     platform2.style.left = "0px";
     mountains.style.left = - screenWidth + "px";
-    bump.style.left = - screenWidth + "px";
+    bullet.style.left = - screenWidth + "px";
     player.style.bottom = "0vh";
+    bullet.style.bottom = "0vh";
+    mountains.style.bottom = "0vh";
 })();
 
-var platformMove = 15, mountainsMove = 6, jumpMove = 7, bumpMove = 30;
+var platformMove = 15, mountainsMove = 6, jumpMove = 7, bulletMove = 25;
 
 console.log();
 var platform1Left = parseInt(platform1.style.left.slice(0, -2));
@@ -51,7 +54,7 @@ function playerRunning (){
 }
 playerRunning();
 var mountainsLeft = parseInt(mountains.style.left.slice(0, -2));
-var bumpLeft = parseInt(bump.style.left.slice(0, -2));
+var bulletLeft = parseInt(bullet.style.left.slice(0, -2));
 function mountainsFanc() {
     if(mountainsLeft >= screenWidth * 3){
         mountainsLeft = -screenWidth;
@@ -60,13 +63,15 @@ function mountainsFanc() {
     }
     mountains.style.left = mountainsLeft + "px";
 }
-function bumpFanc() {
-    if(bumpLeft >= screenWidth * 3){
-        bumpLeft = -screenWidth;
+var bulletRun = false;
+function bulletFanc() {
+    if(bulletLeft >= screenWidth){
+        bulletLeft = -screenWidth;
+        bulletRun = false;
     }else{
-        bumpLeft +=  bumpMove;
+        bulletLeft +=  bulletMove;
     }
-    bump.style.left = bumpLeft + "px";
+    bullet.style.left = bulletLeft + "px";
 }
 var playerBottom = parseInt(player.style.bottom.slice(0, -2));
 var isJumping = false;
@@ -76,24 +81,46 @@ function jump(){
         isJumping = true;
     }
 }
-
-
-window.setInterval(function(){
-    platform();
-    playerRunning();
-    mountainsFanc();
-    bumpFanc();
-    if (isJumping){
-        if(jumpCount <= 6){
-            playerBottom += jumpMove;
-        }else if (jumpCount <= 12) {
-            playerBottom -= jumpMove;
-        }else{
-            jumpCount = 0;
-            isJumping = false;
+var i = 1;
+jump();
+function touched (op1, op2){
+    //player.style.bottom.slice(0, -2) * VhToPx <= parseInt(bullet.style.bottom.slice(0, -2)) + bullet.offsetHeight &&( player.offsetLeft <= bullet.offsetLeft + bullet.offsetWidth && bullet.offsetLeft <= player.offsetLeft + player.offsetWidth)
+    return op1.style.bottom.slice(0, -2) * VhToPx <= parseInt(op2.style.bottom.slice(0, -2)) + op2.offsetHeight &&( op1.offsetLeft <= op2.offsetLeft + op2.offsetWidth && op2.offsetLeft <= op1.offsetLeft + op1.offsetWidth);
+}
+var timer = window.setInterval(function(){
+    if(touched(player, bullet)){ // Game Over
+        clearInterval(timer);
+        alert("Game Over!");
+    }else{
+        platform();
+        playerRunning();
+        mountainsFanc();
+        if(i % 50 == 0){
+            bulletRun = true;
         }
-        jumpCount++;
-        player.style.bottom = playerBottom + "vh";
+        if (bulletRun){
+            bulletFanc();
+        }
+        if (isJumping){
+            if(jumpCount <= 6){
+                playerBottom += jumpMove;
+            }else if (jumpCount <= 12) {
+                playerBottom -= jumpMove;
+            }else{
+                jumpCount = 0;
+                isJumping = false;
+            }
+            jumpCount++;
+            player.style.bottom = playerBottom + "vh";
+            
+        }
+        
+        i++;
     }
-    console.log( "Player left" + player.offsetLeft + " bump left " + bump.offsetLeft);
+    
+    //console.log( "Player left" + player.offsetLeft + " bullet left " + bullet.offsetLeft);
+    
+    //console.log("First "+ (player.offsetLeft <= bullet.offsetLeft + bullet.offsetWidth));
+    console.log();
+    
 }, 60 );
